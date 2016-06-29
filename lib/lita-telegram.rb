@@ -1,4 +1,5 @@
 require "lita"
+require "lita/metadata"
 require 'telegram/bot'
 require 'telegram/bot/botan'
 
