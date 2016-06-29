@@ -15,31 +15,35 @@ module Lita
 
 					user = Lita::User.find_by_name(message.from.username)
 					user = Lita::User.create(message.from.username) unless user
-
-					case message.class.name
-						when 'Telegram::Bot::Types::Message';
-							chat = Lita::Room.new(message.chat.id)
-							bot_query = message.text || ''
-						when 'Telegram::Bot::Types::InlineQuery';
-							chat = Lita::Room.new(-1)
-							bot_query = "inline #{message.query}"
-					end
-
-					if bot_query[0].match('/')
-						matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
+					
+					if message.class.name == 'Telegram::Bot::Types::Message'
+						chat = Lita::Room.new(message.chat.id)
+						bot_query = message.text || ''
+					elsif message.class.name == 'Telegram::Bot::Types::InlineQuery'
+						chat = Lita::Room.new(-1)
+						bot_query = "inline #{message.query}"
 					else
-						matches, botname, command, args = bot_query.match(/(#{robot.mention_name})?\s*([^\s]+)\s*(.+)?/).to_a
+						bot_query = ""
 					end
-					botname ||= robot.mention_name
+					
+					unless bot_query.empty?
+					
+						if bot_query[0].match('/')
+							matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
+						else
+							matches, botname, command, args = bot_query.match(/(#{robot.mention_name})?\s*([^\s]+)\s*(.+)?/).to_a
+						end
+						botname ||= robot.mention_name
 
-					puts "botname: #{botname}, command: #{command}, args: #{args}"
-					next if !botname.match(robot.mention_name)
-					bot_query = "#{botname} #{command} #{args}"
+						puts "botname: #{botname}, command: #{command}, args: #{args}"
+						next if !botname.match(robot.mention_name)
+						bot_query = "#{botname} #{command} #{args}"
 
-					source = Lita::Source.new(user: user, room: chat)
-					msg = Lita::Message.new(robot, bot_query, source)
-					msg.raw = message
-					robot.receive(msg)
+						source = Lita::Source.new(user: user, room: chat)
+						msg = Lita::Message.new(robot, bot_query, source)
+						msg.raw = message
+						robot.receive(msg)
+					end
 				end
 			end
 
