@@ -48,7 +48,7 @@ module Lita
 						bot_query = "#{botname} #{command} #{args}"
 
 						source = Lita::Source.new(user: user, room: chat)
-						msg = Lita::Message.new(robot, bot_query, source)
+						msg = Lita::Message.new(robot, bot_query.strip, source)
 						msg.raw = message
 						robot.receive(msg)
 					end
