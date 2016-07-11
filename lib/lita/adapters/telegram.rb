@@ -16,7 +16,7 @@ module Lita
 					user = Lita::User.find_by_name(message.from.username)
 					user = Lita::User.create(message.from.id, {
 						name: message.from.username,
-						mention_name: message.from.username,
+						mention_name: "@#{message.from.username}",
 					}) unless user
 					
 					if message.class.name == 'Telegram::Bot::Types::Message'
