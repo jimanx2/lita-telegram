@@ -34,7 +34,9 @@ module Lita
 						if bot_query[0].match('/')
 							matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
 							if command.match(/start|startgroup/)
+								args = args.split(' ')
 								command = args.shift!
+								args = args.join(' ')
 							end
 						else
 							matches, botname, command, args = bot_query.match(/(#{robot.mention_name})?\s*([^\s]+)\s*(.+)?/).to_a
