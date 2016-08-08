@@ -43,10 +43,10 @@ module Lita
 						end
 						botname ||= robot.mention_name
 
-						puts "botname: #{botname}, command: #{command}, args: #{args}"
+						client.logger.info("botname: #{botname}, command: #{command}, args: #{args}")
 						next if !botname.match(robot.mention_name)
-						bot_query = "#{botname} #{command} #{args}"
-
+						
+						bot_query = [command,args].join(' ')
 						source = Lita::Source.new(user: user, room: chat)
 						msg = Lita::Message.new(robot, bot_query.strip, source)
 						msg.raw = message
