@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'telegram-bot-ruby'
 	spec.add_runtime_dependency 'ohm'
-	spec.add_runtime_dependency 'net-ping'
+
 end
