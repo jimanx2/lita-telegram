@@ -4,7 +4,7 @@ class Lita::Handlers::Webhook < Lita::Handler
 
 	http.post "/" do |request, response|
 		
-		Lita.logger.info request.body
+		raise request.body
 		
 		update = Telegram::Bot::Types::Update.new MultiJson.load(request.body)
 		message = extract_message(update)
