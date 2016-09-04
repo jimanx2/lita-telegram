@@ -4,7 +4,9 @@ class Lita::Handlers::Webhook < Lita::Handler
 
 	http.post "/" do |request, response|
 		
-		update = Telegram::Bot::Types::Update.new MultiJson.load(request.body)
+		body = request.body.read
+		
+		update = Telegram::Bot::Types::Update.new MultiJson.load(body)
 		message = extract_message(update)
 		
 		user = Lita::User.find_by_name(message.from.username)
@@ -37,12 +39,14 @@ class Lita::Handlers::Webhook < Lita::Handler
 			end
 			botname ||= robot.mention_name
 
-			Lita.logger.info("botname: #{botname}, command: #{command}, args: #{args}")
+			puts "botname: #{botname}, command: #{command}, args: #{args}"
+			
 			next if !botname.match(robot.mention_name)
 
 			bot_query = [botname, command, args].join(' ')
 
 			source = Lita::Source.new(user: user, room: chat)
+			
 			msg = Lita::Message.new(robot, bot_query.strip, source)
 			msg.raw = message
 			robot.receive(msg)
