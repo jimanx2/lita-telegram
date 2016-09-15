@@ -16,16 +16,21 @@ class Lita::Handlers::Webhook < Lita::Handler
 		}) unless user
 
 		if message.class.name == 'Telegram::Bot::Types::Message'
-			chat = Lita::Room.new(message.chat.id)
-			bot_query = message.text || ''
-		elsif message.class.name == 'Telegram::Bot::Types::InlineQuery'
-			chat = Lita::Room.new(-1)
-			bot_query = "inline #{message.query}"
-		else
-			bot_query = ""
-		end
+      chat = Lita::Room.new(message.chat.id)
+      bot_query = message.text || ''
+    elsif message.class.name == 'Telegram::Bot::Types::InlineQuery'
+      chat = Lita::Room.new(-1)
+      bot_query = "inline #{message.query}"
+    elsif message.class.name == 'Telegram::Bot::Types::CallbackQuery'
+      chat = Lita::Room.new(message.message.chat.id)
+      bot_query = message.data
+    else
+      bot_query = ""
+    end
 
 		unless bot_query.empty?
+      
+      bot_query = URI.unescape( bot_query )
 
 			if bot_query[0].match('/')
 				matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
@@ -39,7 +44,7 @@ class Lita::Handlers::Webhook < Lita::Handler
 			end
 			botname ||= robot.mention_name
 
-			puts "botname: #{botname}, command: #{command}, args: #{args}"
+			Lita.logger.info "botname: #{botname}, command: #{command}, args: #{args}"
 			
 			next if !botname.match(robot.mention_name)
 

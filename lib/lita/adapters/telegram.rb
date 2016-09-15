@@ -27,12 +27,17 @@ module Lita
 					elsif message.class.name == 'Telegram::Bot::Types::InlineQuery'
 						chat = Lita::Room.new(-1)
 						bot_query = "inline #{message.query}"
+          elsif message.class.name == 'Telegram::Bot::Types::CallbackQuery'
+            chat = Lita::Room.new(message.message.chat.id)
+            bot_query = message.data
 					else
 						bot_query = ""
 					end
 
 					unless bot_query.empty?
 
+            bot_query = URI.unescape( bot_query )
+            
 						if bot_query[0].match('/')
 							matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
 							if command.match(/start|startgroup/) and !args.nil?
@@ -59,6 +64,7 @@ module Lita
 			end
 
 			def send_messages(target, messages)
+        responses = []
 				messages.each do |message|
 					if message.is_a?(Hash)
 						if message.key?(:inline_query_id)
@@ -74,18 +80,20 @@ module Lita
 						
 						client.api.sendChatAction(chat_id: message[:chat_id], action: action) unless action.nil?
 
-						response = client.api.send(
+						responses << client.api.send(
 							command.to_sym, 
 							message
 						)
-						
-						metadata.update(message_id: response["result"]["message_id"]) if metadata
+            
 					elsif message.is_a? String
-						response = client.api.sendMessage(chat_id: target.room.to_i, text: message)
+						responses << client.api.sendMessage(chat_id: target.room.to_i, text: message)
+            
 					else
 						next
 					end
 				end
+        
+        responses
 			end
 
 			def shutdown
