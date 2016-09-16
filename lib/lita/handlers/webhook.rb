@@ -28,33 +28,32 @@ class Lita::Handlers::Webhook < Lita::Handler
       bot_query = ""
     end
 
-		unless bot_query.empty?
-      
+    unless bot_query.empty?
+
       bot_query = URI.unescape( bot_query )
 
-			if bot_query[0].match('/')
-				matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
-				if command.match(/start|startgroup/) and !args.nil?
-					args = args.split(' ')
-					command = args.shift
-					args = args.join(' ')
-				end
-			else
-				matches, botname, command, args = bot_query.match(/(#{robot.mention_name})?\s*([^\s]+)\s*(.+)?/).to_a
-			end
-			botname ||= robot.mention_name
+      if bot_query[0].match('/')
+        matches, command, botname, args = bot_query.match(/\/?([^\@\s]+)(\@[^\s]+)?\s*(.+)?/).to_a
+        if command.match(/start|startgroup/) and !args.nil?
+          args = args.split(' ')
+          command = args.shift
+          args = args.join(' ')
+        end
+      else
+        matches, botname, command, args = bot_query.match(/(#{robot.mention_name})?\s*([^\s]+)\s*(.+)?/).to_a
+      end
+      botname ||= robot.mention_name
 
-			Lita.logger.info "botname: #{botname}, command: #{command}, args: #{args}"
-			
-			next if !botname.match(robot.mention_name)
+      client.logger.info("botname: #{botname}, command: #{command}, args: #{args}")
+      next if !botname.match(robot.mention_name)
 
-			bot_query = [botname, command, args].join(' ')
+      bot_query = [botname, command, args].join(' ')
 
-			source = Lita::Source.new(user: user, room: chat)
-			
-			msg = Lita::Message.new(robot, bot_query.strip, source)
-			msg.raw = message
-			robot.receive(msg)
+      source = Lita::Source.new(user: user, room: chat)
+      msg = Lita::Message.new(robot, bot_query.strip, source)
+      msg.raw = message
+      robot.receive(msg)
+      
 		end
 	end
 	
