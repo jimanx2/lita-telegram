@@ -6,6 +6,8 @@ class Lita::Handlers::Webhook < Lita::Handler
 		
 		body = request.body.read
 		
+    puts body.inspect
+    
 		update = Telegram::Bot::Types::Update.new MultiJson.load(body)
 		message = extract_message(update)
 		
@@ -44,7 +46,7 @@ class Lita::Handlers::Webhook < Lita::Handler
       end
       botname ||= robot.mention_name
 
-      client.logger.info("botname: #{botname}, command: #{command}, args: #{args}")
+      Lita.logger.info("botname: #{botname}, command: #{command}, args: #{args}")
       next if !botname.match(robot.mention_name)
 
       bot_query = [botname, command, args].join(' ')
