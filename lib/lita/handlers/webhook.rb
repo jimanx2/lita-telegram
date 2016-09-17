@@ -55,6 +55,10 @@ class Lita::Handlers::Webhook < Lita::Handler
       robot.receive(msg)
       
 		end
+    
+    response.write(MultiJson.dump(
+      status: "ok"
+    ))
 	end
 	
 	private
